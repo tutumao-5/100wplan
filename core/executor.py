@@ -86,8 +86,15 @@ class Executor:
             return {"status": "rejected", "reason": "invalid_entry_price"}
 
         balance = await self.get_free_balance()
+        if balance <= 0:
+            return {"status": "rejected", "reason": "balance_zero_or_api_failed"}
+
         position_usdt = min(balance * 0.1, 100)
         quantity = position_usdt / entry_price
+
+        # 精度保底：最少 1 coin，避免 "must be greater than minimum amount" 错误
+        if quantity < 1:
+            quantity = 1.0
 
         position_side = "long" if side == "buy" else "short"
         try:

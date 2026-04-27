@@ -10,6 +10,10 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
+from dotenv import load_dotenv
+
+# 加载 .env 环境变量
+load_dotenv(_ROOT / ".env")
 
 from core.scanner import scan_all
 from core.executor import Executor
