@@ -159,12 +159,15 @@ class PatternLearner:
     async def _call_deepseek(self, prompt: str) -> dict:
         raw_key = os.environ.get("DEEPSEEK_API_KEY", "")
         if not raw_key:
-            logger.error("DEEPSEEK_API_KEY not set")
+            import traceback
+            logger.error("[DeepSeek API Key Missing] DEEPSEEK_API_KEY not set in env | UTC=%s\n%s", datetime.utcnow().isoformat(), traceback.format_stack())
             return {}
 
         try:
             api_key = base64.b64decode(raw_key).decode("utf-8").strip()
-        except Exception:
+        except Exception as e:
+            import traceback
+            logger.error("[DeepSeek API Key Decode Failed] raw_key present but decode failed: %s | UTC=%s\n%s", e, datetime.utcnow().isoformat(), traceback.format_exc())
             api_key = raw_key.strip()
 
         headers = {
@@ -192,14 +195,17 @@ class PatternLearner:
                 ) as resp:
                     if resp.status != 200:
                         text = await resp.text()
-                        logger.error(f"DeepSeek API error {resp.status}: {text}")
+                        logger.error(f"[DeepSeek HTTP Error] status={resp.status} body={text[:500]}")
                         return {}
                     data = await resp.json()
                     content = data["choices"][0]["message"]["content"]
                     return json.loads(content)
         except asyncio.TimeoutError:
-            logger.error("DeepSeek API timeout")
+            import traceback
+            logger.error("[DeepSeek Timeout] UTC=%s | Exception:\n%s", datetime.utcnow().isoformat(), traceback.format_exc())
             return {}
         except Exception as e:
-            logger.error(f"DeepSeek API call failed: {e}")
+            import traceback
+            raw_text = traceback.format_exc()
+            logger.error("[DeepSeek API Call Failed] UTC=%s | Exception=%s\nTraceback:\n%s", datetime.utcnow().isoformat(), e, raw_text)
             return {}

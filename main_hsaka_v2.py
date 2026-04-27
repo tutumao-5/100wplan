@@ -66,7 +66,7 @@ class TradingBot:
         if env_interval is not None:
             self.scan_interval = int(env_interval)
         else:
-            self.scan_interval = config.get("scanner", {}).get("scan_interval_seconds", 300)
+            self.scan_interval = config.get("scanner", {}).get("scan_interval_seconds", 60)
         self.learner = PatternLearner(db)
         self._cycle = 0
 
@@ -187,7 +187,7 @@ async def main() -> None:
     bot = TradingBot(tg_bot=tg_bot, executor=executor, db=db, config=config)
 
     # 6. 点火仪式
-    await tg_bot.send_message("🚀 金大帅，okx100w计划已点火成功！当前扫描频率：180s/次。监控中...")
+    await tg_bot.send_message(f"🚀 金大帅，okx100w计划已点火成功！当前扫描频率：{bot.scan_interval}s/次。监控中...")
 
     # 7. asyncio.create_task 启动双核（非阻塞）
     logger.info("=== 系统就绪，启动双核异步任务 ===")

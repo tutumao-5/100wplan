@@ -37,6 +37,7 @@ class Executor:
         self._okx: Optional[ccxt.okx] = None
 
         rc = self._settings.get("risk_control", {})
+        self.leverage: int = self._settings.get("risk_control", {}).get("leverage", 10)
         self.stop_loss_pct: float = rc.get("stop_loss_pct", 0.02)
         self.take_profit_pct: float = rc.get("take_profit_pct", 0.06)
         self.trailing_stop_pct: float = rc.get("trailing_stop_pct", 0.01)
@@ -72,6 +73,39 @@ class Executor:
         return sl, tp
 
     # ── Core execution methods ─────────────────────────────────────────────────
+
+    async def execute_signal(self, signal: Dict[str, Any]) -> Dict[str, Any]:
+        inst_id = signal.get("inst_id", "")
+        side = signal.get("direction", "buy")
+        entry_price = float(signal.get("entry_price", 0))
+        hsaka_score = float(signal.get("hsaka_score", 0))
+        hsaka_sfp = int(signal.get("hsaka_sfp", 0))
+        hsaka_liq = int(signal.get("hsaka_liq", 0))
+
+        if not entry_price:
+            return {"status": "rejected", "reason": "invalid_entry_price"}
+
+        balance = await self.get_free_balance()
+        position_usdt = min(balance * 0.1, 100)
+        quantity = position_usdt / entry_price
+
+        position_side = "long" if side == "buy" else "short"
+        try:
+            okx = await self._get_exchange()
+            await okx.set_leverage(
+                10, inst_id,
+                params={"marginMode": "cross", "positionSide": position_side},
+            )
+        except Exception as exc:
+            logger.warning("[设置杠杆失败] inst_id=%s error=%s", inst_id, exc)
+
+        if hsaka_score >= 6.5 and (hsaka_sfp == 1 or hsaka_liq == 1):
+            return await self.execute_market_order(inst_id, side, quantity, signal)
+        elif 5.5 <= hsaka_score < 6.5:
+            return await self.execute_limit_order(inst_id, side, entry_price, quantity, signal)
+        else:
+            logger.info("[信号拒绝] inst_id=%s score=%.2f", inst_id, hsaka_score)
+            return {"status": "rejected", "reason": "score_too_low"}
 
     async def execute_market_order(
         self,

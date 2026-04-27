@@ -2,6 +2,7 @@ import asyncio
 import aiohttp
 import numpy as np
 from datetime import datetime, timezone
+from pathlib import Path
 
 
 PROXY = "http://127.0.0.1:7897"
@@ -397,7 +398,15 @@ async def run_all_checks(inst_id: str) -> dict:
 
     for key, result in zip(keys, results):
         if isinstance(result, Exception):
-            output[key] = {"triggered": False, "signal": "neutral", "score": 0.0, "details": {"error": str(result)}}
+            import traceback as tb
+            exc_summary = f"[Hsaka Check Exception] inst_id={inst_id} check={key} type={type(result).__name__} msg={str(result)}"
+            exc_detail  = "".join(tb.format_exception(type(result), result, result.__traceback__))
+            # 写独立日志文件，方便 cron 提取
+            log_path = Path(__file__).parent.parent / "logs" / "hsaka_errors.log"
+            log_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(log_path, "a") as f:
+                f.write(f"\n{'='*60}\nUTC={datetime.utcnow().isoformat()} | {exc_summary}\n{exc_detail}\n")
+            output[key] = {"triggered": False, "signal": "neutral", "score": 0.0, "details": {"error": exc_summary}}
         else:
             output[key] = result
             total_score += result.get("score", 0.0)

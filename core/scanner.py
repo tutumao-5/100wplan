@@ -31,7 +31,7 @@ RSI_OVERSOLD = 30
 RSI_OVERBOUGHT = 65
 VMA_PERIOD = 20
 VMA_RATIO_THRESHOLD = 1.8
-SCORE_THRESHOLD = 5.5
+SCORE_THRESHOLD = 3.5
 KLINE_LIMIT = 100
 
 HSAKA_KEYS = [
@@ -44,38 +44,30 @@ HSAKA_KEYS = [
     "high_session",
 ]
 
-# ── 129个币种（OKX永续合约USDT本位）─────────────────────────────────────────
+# ── 108个币种（OKX永续合约USDT本位）─────────────────────────────────────────
 SYMBOLS: List[str] = [
-    # 主流币
-    "BTC-USDT-SWAP", "ETH-USDT-SWAP", "SOL-USDT-SWAP", "XRP-USDT-SWAP", "DOGE-USDT-SWAP",
-    "ADA-USDT-SWAP", "AVAX-USDT-SWAP", "SHIB-USDT-SWAP", "DOT-USDT-SWAP", "LINK-USDT-SWAP",
-    "MATIC-USDT-SWAP", "ATOM-USDT-SWAP", "UNI-USDT-SWAP", "LTC-USDT-SWAP", "ETC-USDT-SWAP",
-    "XLM-USDT-SWAP", "NEAR-USDT-SWAP", "APT-USDT-SWAP", "ARB-USDT-SWAP", "OP-USDT-SWAP",
-    "FIL-USDT-SWAP", "ICP-USDT-SWAP", "VET-USDT-SWAP", "HBAR-USDT-SWAP", "EGLD-USDT-SWAP",
-    "AAVE-USDT-SWAP", "GRT-USDT-SWAP", "ALGO-USDT-SWAP", "FTM-USDT-SWAP", "SAND-USDT-SWAP",
-    "MANA-USDT-SWAP", "AXS-USDT-SWAP", "ENJ-USDT-SWAP", "GALA-USDT-SWAP", "THETA-USDT-SWAP",
-    "EOS-USDT-SWAP", "XTZ-USDT-SWAP", "CAKE-USDT-SWAP", "FLOW-USDT-SWAP", "SNX-USDT-SWAP",
-    "CHZ-USDT-SWAP", "CRV-USDT-SWAP", "MKR-USDT-SWAP", "LDO-USDT-SWAP", "RPL-USDT-SWAP",
-    "GMX-USDT-SWAP", "COMP-USDT-SWAP", "SUSHI-USDT-SWAP", "ZEC-USDT-SWAP", "DASH-USDT-SWAP",
-    "NEO-USDT-SWAP", "WAVES-USDT-SWAP", "KAVA-USDT-SWAP", "ZIL-USDT-SWAP", "IOTA-USDT-SWAP",
-    "KSM-USDT-SWAP", "AXL-USDT-SWAP", "STX-USDT-SWAP", "SUI-USDT-SWAP", "SEI-USDT-SWAP",
-    "TIA-USDT-SWAP", "WIF-USDT-SWAP", "PEPE-USDT-SWAP", "BONK-USDT-SWAP", "FLOKI-USDT-SWAP",
-    "WLD-USDT-SWAP", "PYTH-USDT-SWAP", "JUP-USDT-SWAP", "ZRO-USDT-SWAP", "NOT-USDT-SWAP",
-    "IO-USDT-SWAP", "PENDLE-USDT-SWAP", "ENA-USDT-SWAP", "W-USDT-SWAP", "BNB-USDT-SWAP",
-    "OKB-USDT-SWAP", "MNT-USDT-SWAP", "RENDER-USDT-SWAP", "TAO-USDT-SWAP", "FET-USDT-SWAP",
-    "AGIX-USDT-SWAP", "OCEAN-USDT-SWAP", "NMR-USDT-SWAP", "INJ-USDT-SWAP", "SUI-USDT-SWAP",
-    "BCH-USDT-SWAP", "BSV-USDT-SWAP", "AR-USDT-SWAP", "LUNA-USDT-SWAP", "IMX-USDT-SWAP",
-    "DYM-USDT-SWAP", "TIA-USDT-SWAP", "STRD-USDT-SWAP", "OSMO-USDT-SWAP", "CHR-USDT-SWAP",
-    "HIGH-USDT-SWAP", "ALPHA-USDT-SWAP", "BAND-USDT-SWAP", "BSW-USDT-SWAP", "TRAC-USDT-SWAP",
-    # 额外补充至129个
-    "ACH-USDT-SWAP", "CFX-USDT-SWAP", "CYBER-USDT-SWAP", "DODO-USDT-SWAP", "ID-USDT-SWAP",
-    "ILV-USDT-SWAP", "JOE-USDT-SWAP", "KEY-USDT-SWAP", "LINA-USDT-SWAP", "LOKA-USDT-SWAP",
-    "LOOM-USDT-SWAP", "MAGIC-USDT-SWAP", "MASK-USDT-SWAP", "MC-USDT-SWAP", "MINA-USDT-SWAP",
-    "MTL-USDT-SWAP", "OGN-USDT-SWAP", "OXT-USDT-SWAP", "PERP-USDT-SWAP", "PROM-USDT-SWAP",
-    "QI-USDT-SWAP", "RAD-USDT-SWAP", "RARE-USDT-SWAP", "RAY-USDT-SWAP", "RIF-USDT-SWAP",
-    "RLC-USDT-SWAP", "SXP-USDT-SWAP", "SYS-USDT-SWAP", "T-USDT-SWAP", "TRU-USDT-SWAP",
-    "UNFI-USDT-SWAP", "UTK-USDT-SWAP", "VOXEL-USDT-SWAP", "WAXP-USDT-SWAP", "XEM-USDT-SWAP",
-    "YFI-USDT-SWAP", "YGG-USDT-SWAP", "ZRX-USDT-SWAP", "ZKSYNC-USDT-SWAP",
+    "BTC-USDT-SWAP", "ETH-USDT-SWAP", "SOL-USDT-SWAP", "XRP-USDT-SWAP", "DOGE-USDT-SWAP"
+    "ADA-USDT-SWAP", "AVAX-USDT-SWAP", "SHIB-USDT-SWAP", "DOT-USDT-SWAP", "LINK-USDT-SWAP"
+    "ATOM-USDT-SWAP", "UNI-USDT-SWAP", "LTC-USDT-SWAP", "ETC-USDT-SWAP", "XLM-USDT-SWAP"
+    "NEAR-USDT-SWAP", "APT-USDT-SWAP", "ARB-USDT-SWAP", "OP-USDT-SWAP", "FIL-USDT-SWAP"
+    "ICP-USDT-SWAP", "HBAR-USDT-SWAP", "EGLD-USDT-SWAP", "AAVE-USDT-SWAP", "GRT-USDT-SWAP"
+    "ALGO-USDT-SWAP", "SAND-USDT-SWAP", "MANA-USDT-SWAP", "AXS-USDT-SWAP", "ENJ-USDT-SWAP"
+    "GALA-USDT-SWAP", "THETA-USDT-SWAP", "XTZ-USDT-SWAP", "FLOW-USDT-SWAP", "SNX-USDT-SWAP"
+    "CHZ-USDT-SWAP", "CRV-USDT-SWAP", "LDO-USDT-SWAP", "GMX-USDT-SWAP", "COMP-USDT-SWAP"
+    "SUSHI-USDT-SWAP", "ZEC-USDT-SWAP", "DASH-USDT-SWAP", "NEO-USDT-SWAP", "ZIL-USDT-SWAP"
+    "IOTA-USDT-SWAP", "KSM-USDT-SWAP", "STX-USDT-SWAP", "SUI-USDT-SWAP", "SEI-USDT-SWAP"
+    "TIA-USDT-SWAP", "WIF-USDT-SWAP", "PEPE-USDT-SWAP", "BONK-USDT-SWAP", "FLOKI-USDT-SWAP"
+    "WLD-USDT-SWAP", "PYTH-USDT-SWAP", "JUP-USDT-SWAP", "ZRO-USDT-SWAP", "NOT-USDT-SWAP"
+    "PENGU-USDT-SWAP", "BOME-USDT-SWAP", "PNUT-USDT-SWAP", "POPCAT-USDT-SWAP", "MOODENG-USDT-SWAP"
+    "TRUMP-USDT-SWAP", "SPX-USDT-SWAP", "PENDLE-USDT-SWAP", "ENA-USDT-SWAP", "W-USDT-SWAP"
+    "BNB-USDT-SWAP", "OKB-USDT-SWAP", "RENDER-USDT-SWAP", "TAO-USDT-SWAP", "NMR-USDT-SWAP"
+    "INJ-USDT-SWAP", "SUI-USDT-SWAP", "BCH-USDT-SWAP", "AR-USDT-SWAP", "LUNA-USDT-SWAP"
+    "IMX-USDT-SWAP", "TIA-USDT-SWAP", "BAND-USDT-SWAP", "ACH-USDT-SWAP", "CFX-USDT-SWAP"
+    "VIRTUAL-USDT-SWAP", "KAITO-USDT-SWAP", "AIXBT-USDT-SWAP", "ME-USDT-SWAP", "MORPHO-USDT-SWAP"
+    "SYRUP-USDT-SWAP", "KMNO-USDT-SWAP", "TON-USDT-SWAP", "CC-USDT-SWAP", "CELO-USDT-SWAP"
+    "MON-USDT-SWAP", "RAVE-USDT-SWAP", "CHIP-USDT-SWAP", "TURBO-USDT-SWAP", "ANIME-USDT-SWAP"
+    "MEW-USDT-SWAP", "MAGIC-USDT-SWAP", "MASK-USDT-SWAP", "MINA-USDT-SWAP", "RAY-USDT-SWAP"
+    "YFI-USDT-SWAP", "YGG-USDT-SWAP", "ZRX-USDT-SWAP"
 ]
 
 
@@ -134,6 +126,49 @@ async def _fetch_single(
         except Exception:
             pass
     return inst_id, None
+
+
+async def _fetch_5m_single(
+    session: aiohttp.ClientSession, inst_id: str
+) -> Tuple[str, Optional[List]]:
+    """拉取5分钟K线（含当前未完成K线），用于VMA爆发力检测"""
+    url = f"{OKX_BASE}/api/v5/market/candles"
+    params = {"instId": inst_id, "bar": "5m", "limit": "100"}
+    for delay in [0, 1, 2, 4]:
+        if delay:
+            await asyncio.sleep(delay)
+        try:
+            async with session.get(
+                url, params=params,
+                proxy=PROXY,
+                timeout=aiohttp.ClientTimeout(total=15),
+            ) as resp:
+                body = await resp.json()
+                raw = body.get("data", [])
+                if raw:
+                    return inst_id, raw
+        except Exception:
+            pass
+    return inst_id, None
+
+
+async def _fetch_5m_candles_batch(coins: List[str]) -> Dict[str, List]:
+    """并发拉取所有币种的5m K线"""
+    semaphore = asyncio.Semaphore(20)
+    async def _fetch_with_sem(session: aiohttp.ClientSession, c: str):
+        async with semaphore:
+            return await _fetch_5m_single(session, c)
+    async with aiohttp.ClientSession() as session:
+        tasks = [_fetch_with_sem(session, c) for c in coins]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+    candles: Dict[str, List] = {}
+    for r in results:
+        if isinstance(r, Exception):
+            continue
+        inst_id, raw = r
+        if raw:
+            candles[inst_id] = raw
+    return candles
 
 
 async def _fetch_klines_batch(coins: List[str]) -> Dict[str, List]:
@@ -231,15 +266,77 @@ def _filter_rsi(candles_dict: Dict[str, List]) -> Dict[str, Dict]:
     return passed
 
 
-def _filter_vma(candles_dict: Dict[str, Dict]) -> Dict[str, Dict]:
-    """漏斗2：VMA倍率次筛"""
+async def _filter_vma(rsi_passed: Dict[str, Dict]) -> Dict[str, Dict]:
+    """漏斗2：VMA倍率次筛（5m爆发力检测 + 1h RSI趋势确认）
+
+    双周期协同检测逻辑：
+    - 1h RSI 确认大趋势方向（确保不是逆势）
+    - 5m 量比 确认爆发启动点（当前5m量 / 过去20根5m均量）
+    """
+    if not rsi_passed:
+        return {}
+
+    # 并发拉取所有RSI通过币种的5m K线
+    coins_5m = list(rsi_passed.keys())
+    logger.info("[Scanner] 拉取 %d 个币种的5m K线进行VMA检测...", len(coins_5m))
+    candles_5m = await _fetch_5m_candles_batch(coins_5m)
+    logger.info("[Scanner] 5m K线拉取成功: %d/%d", len(candles_5m), len(coins_5m))
+
     passed: Dict[str, Dict] = {}
-    for inst_id, info in candles_dict.items():
-        parsed = info["parsed"]
-        vma_ratio = _calc_vma_ratio(parsed["volume"])
+    for inst_id, info in rsi_passed.items():
+        rsi = info.get("rsi", 0)
+        direction = info.get("direction", "unknown")
+
+        raw_5m = candles_5m.get(inst_id)
+        if not raw_5m:
+            logger.info("[Debug] %s RSI=%.2f(direction=%s) | 5m数据拉取失败 ❌", inst_id, rsi, direction)
+            continue
+
+        # 解析5m K线（最新在前）
+        try:
+            arr_5m = np.array(
+                [[float(c[1]), float(c[2]), float(c[3]), float(c[4]), float(c[5])]
+                 for c in raw_5m],
+                dtype=float,
+            )[::-1]  # 反转为时间升序
+            vol_5m = arr_5m[:, 4]  # volume列
+        except Exception:
+            logger.info("[Debug] %s RSI=%.2f | 5m解析失败 ❌", inst_id, rsi)
+            continue
+
+        if len(vol_5m) < 21:
+            logger.info("[Debug] %s RSI=%.2f | 5m数据不足(%d根) ❌", inst_id, rsi, len(vol_5m))
+            continue
+
+        # ── 时间加权VMA ──────────────────────────────────────
+        # 判断当前5m K线已过去多少秒，对最新一根成交量做时间加权放大
+        # 5m K线结构：[ts, open, high, low, close, vol]
+        # raw_5m 最新一根是当前未完成K线，ts单位是毫秒
+        current_vol = float(vol_5m[-1])
+        try:
+            ts_latest_ms = int(raw_5m[0][0])
+            ts_now_ms = int(datetime.now().timestamp() * 1000)
+            seconds_elapsed = max(1, (ts_now_ms - ts_latest_ms) / 1000)
+            # 若K线刚开盘（< 60秒），按300/已过去秒数做时间膨胀
+            if seconds_elapsed < 60:
+                current_vol = current_vol * (300.0 / seconds_elapsed)
+                logger.info("[Debug] %s RSI=%.2f | 时间加权: %.0f秒已过, 原始vol=%.2f → 加权=%.2f",
+                            inst_id, rsi, seconds_elapsed, float(vol_5m[-1]), current_vol)
+        except Exception:
+            pass  # 时间加权失败则使用原始成交量
+
+        # VMA计算：当前5m成交量 / 过去20根5m均量
+        vol_ma_5m = vol_5m[-20:].mean()
+        if vol_ma_5m == 0:
+            logger.info("[Debug] %s RSI=%.2f | 5m均量为0 ❌", inst_id, rsi)
+            continue
+        vma_ratio = float(current_vol / vol_ma_5m)
+
         if vma_ratio > VMA_RATIO_THRESHOLD:
             info["vma_ratio"] = vma_ratio
             passed[inst_id] = info
+        else:
+            logger.info("[Debug] %s RSI=%.2f(direction=%s) | 5m量比=%.4fx / 阈值=1.8x ❌ (已过滤)", inst_id, rsi, direction, vma_ratio)
     return passed
 
 
@@ -343,13 +440,20 @@ async def _score_and_rank(
 
 
 async def _persist_signals(signals: List[Dict[str, Any]], db: TradeDB) -> int:
-    """调用trade_db.insert_signal()原子写入，仅写入综合评分≥5.5的信号"""
+    """调用trade_db.insert_signal()原子写入，仅写入综合评分≥3.5的信号"""
     written = 0
     now = datetime.utcnow().isoformat()
     expired_at = (datetime.utcnow() + timedelta(hours=4)).isoformat()
 
     for sig in signals:
-        if sig["composite_score"] < SCORE_THRESHOLD:
+        hsaka_score = sig["hsaka_score"]
+        composite_score = sig["composite_score"]
+        inst_id = sig["inst_id"]
+
+        if composite_score < SCORE_THRESHOLD:
+            # [Intercept] Hsaka通过但综合评分不足：透视信号拦截原因
+            logger.info("[Intercept] %s Hsaka_score=%.4f | 综合评分=%.4f < 3.5 | 未写入原因: 分值过低（冷启动阈值）",
+                         inst_id, hsaka_score, composite_score)
             continue
         try:
             await db.insert_signal(
@@ -433,7 +537,7 @@ async def scan_all() -> Dict[str, Any]:
     执行完整漏斗扫描，返回扫描报告。
 
     流程：blocking_lessons → 并发拉K线 → RSI初筛 → VMA次筛
-          → Hsaka七层 → AI打分 → 综合评分≥5.5写入DB
+          → Hsaka七层 → AI打分 → 综合评分≥3.5写入DB
     """
     report: Dict[str, Any] = {
         "total_coins": 0,
@@ -462,17 +566,21 @@ async def scan_all() -> Dict[str, Any]:
         # ── 步骤c：漏斗1 - RSI极值初筛（RSI<30 OR RSI>65）───────────────────
         rsi_raw = _filter_rsi(candles_dict)
 
-        # 冷却检查：冷却中的币种在RSI阶段即跳过
+        # 冷却检查：冷却中的币种在RSI阶段即跳过，并打[Intercept]日志
         rsi_passed: Dict[str, Dict] = {}
         for inst_id, info in rsi_raw.items():
             if not await _check_cooldown(db, inst_id):
                 rsi_passed[inst_id] = info
+            else:
+                # [Intercept] 冷却透视：Hsaka评分再高也到不了这里，直接在RSI阶段拦截
+                rsi = info.get("rsi", 0)
+                logger.info("[Intercept] %s RSI=%.2f | 冷却中，跳过 | 拦截阶段: RSI漏斗", inst_id, rsi)
 
         report["rsi_filtered"] = len(rsi_passed)
         logger.info("[Scanner] RSI初筛通过: %d 个（含冷却过滤）", len(rsi_passed))
 
         # ── 步骤d：漏斗2 - VMA倍率次筛（VMA>1.8）────────────────────────────
-        vma_passed = _filter_vma(rsi_passed)
+        vma_passed = await _filter_vma(rsi_passed)
         report["vma_filtered"] = len(vma_passed)
         logger.info("[Scanner] VMA次筛通过: %d 个", len(vma_passed))
 
@@ -489,7 +597,7 @@ async def scan_all() -> Dict[str, Any]:
             return report
 
         # ── 步骤f：AI动态打分（进化态≥30笔后启用）───────────────────────────
-        # ── 步骤g：综合评分≥5.5写入DB ─────────────────────────────────────────
+        # ── 步骤g：综合评分≥3.5写入DB ─────────────────────────────────────────
         signals = await _score_and_rank(hsaka_passed, db)
         written = await _persist_signals(signals, db)
 

@@ -17,7 +17,7 @@
     "symbols_count": 129,
     "kline_limit": 100,
     "kline_interval": "1h",
-    "scan_interval_seconds": 300,
+    "scan_interval_seconds": 60,
     "rsi_period": 14,
     "rsi_oversold": 30,
     "rsi_overbought": 65,
@@ -43,13 +43,14 @@
   "risk_control": {
     "max_position_usdt": 100,
     "max_position_pct": 0.1,
-    "max_total_positions": 5,
+    "max_total_positions": 4,
     "max_sector_exposure": 0.3,
     "stop_loss_pct": 0.02,
     "take_profit_pct": 0.06,
     "trailing_stop_pct": 0.01,
     "meltdown_threshold_pct": 0.05,
-    "daily_loss_limit_pct": 0.1
+    "daily_loss_limit_pct": 0.1,
+    "leverage": 10
   },
   "order": {
     "default_order_type": "limit",
