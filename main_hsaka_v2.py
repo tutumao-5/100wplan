@@ -12,6 +12,8 @@ from datetime import datetime
 from pathlib import Path
 from dotenv import load_dotenv
 
+_ROOT = Path(__file__).resolve().parent
+
 # 加载 .env 环境变量
 load_dotenv(_ROOT / ".env")
 
@@ -20,8 +22,6 @@ from core.executor import Executor
 from core.pattern_learner import PatternLearner
 from core.trade_db import TradeDB, get_db
 from core.tg_bot import TgBot
-
-_ROOT = Path(__file__).resolve().parent
 
 # -------------------------------------------------------------------------
 # 日志配置
