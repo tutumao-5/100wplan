@@ -1,3 +1,4 @@
+import aiohttp
 import json
 import logging
 from dataclasses import dataclass
@@ -61,6 +62,23 @@ class Executor:
             })
         return self._okx
 
+    async def _fetch_max_market_sz(self, inst_id: str) -> Optional[float]:
+        """通过 OKX 公开 API 获取市价单最大数量（maxMktSz）"""
+        try:
+            async with aiohttp.ClientSession() as session:
+                url = f"https://www.okx.com/api/v5/public/instruments?instType=SWAP&instId={inst_id}"
+                async with session.get(url, proxy=PROXY_URL, timeout=aiohttp.ClientTimeout(total=5)) as resp:
+                    if resp.status == 200:
+                        data = await resp.json()
+                        insts = data.get("data", [])
+                        if insts:
+                            max_sz = insts[0].get("maxMktSz")
+                            if max_sz:
+                                return float(max_sz)
+        except Exception:
+            pass
+        return None
+
     # ── SL/TP ──────────────────────────────────────────────────────────────────
 
     def _calc_sl_tp(self, entry_price: float, side: str) -> tuple[float, float]:
@@ -77,6 +95,7 @@ class Executor:
     async def execute_signal(self, signal: Dict[str, Any]) -> Dict[str, Any]:
         inst_id = signal.get("inst_id", "")
         side = signal.get("direction", "buy")
+        position_side = "long" if side == "buy" else "short"
         entry_price = float(signal.get("entry_price", 0))
         hsaka_score = float(signal.get("hsaka_score", 0))
         hsaka_sfp = int(signal.get("hsaka_sfp", 0))
@@ -89,20 +108,42 @@ class Executor:
         if balance <= 0:
             return {"status": "rejected", "reason": "balance_zero_or_api_failed"}
 
+        # ── 芝麻仓修复：名义价值 = 保证金预算 × 杠杆倍数 ──────────────────
         position_usdt = min(balance * 0.1, 100)
-        quantity = position_usdt / entry_price
+        # 检查现有仓位面值（名义价值），芝麻仓（<200 U）不追加，等自然平仓
+        existing_notional = await self._get_position_notional(inst_id, position_side)
+        if 0 < existing_notional < 200:
+            logger.info(
+                "[芝麻仓检查] inst_id=%s 已有面值=%.2f U（芝麻仓），跳过追加",
+                inst_id, existing_notional,
+            )
+            return {"status": "rejected", "reason": "existing_position_too_small"}
+        # 正确公式：名义价值 = 保证金预算 × 杠杆 → 数量 = 名义价值 / 开仓价
+        notional_size = position_usdt * self.leverage
+        quantity = notional_size / entry_price
+        logger.info(
+            "[芝麻仓修复] 预算=%.2f U × 杠杆=%d = 名义%.2f U → 数量=%.4f",
+            position_usdt, self.leverage, notional_size, quantity,
+        )
 
         # 精度保底：最少 1 coin，避免 "must be greater than minimum amount" 错误
         if quantity < 1:
             quantity = 1.0
 
-        position_side = "long" if side == "buy" else "short"
         try:
             okx = await self._get_exchange()
             await okx.set_leverage(
                 10, inst_id,
                 params={"marginMode": "cross", "positionSide": position_side},
             )
+            # 最大数量上限截断：OKX 市价单用 maxMktSz（非 maxQty）
+            max_mkt_sz = await self._fetch_max_market_sz(inst_id)
+            if max_mkt_sz is not None and quantity > max_mkt_sz:
+                logger.warning(
+                    "[数量超限截断] inst_id=%s quantity=%.2f -> max_mkt_sz=%.2f",
+                    inst_id, quantity, max_mkt_sz,
+                )
+                quantity = max_mkt_sz
         except Exception as exc:
             logger.warning("[设置杠杆失败] inst_id=%s error=%s", inst_id, exc)
 
@@ -146,8 +187,15 @@ class Executor:
             )
 
             ord_id = str(resp.get("id", ""))
-            avg_price = float(resp.get("average") or resp.get("price") or 0)
-            fill_qty = float(resp.get("filled") or 0)
+            # OKX 市价单响应不含 avgPx/fillSz，需单独拉取订单详情
+            avg_price = 0.0
+            fill_qty = 0.0
+            try:
+                order_detail = await okx.fetch_order(ord_id, inst_id)
+                avg_price = float(order_detail.get("average") or order_detail.get("price") or 0)
+                fill_qty = float(order_detail.get("filled") or 0)
+            except Exception as exc:
+                logger.warning("[获取订单成交详情失败] ord_id=%s error=%s", ord_id, exc)
 
             sl, tp = self._calc_sl_tp(avg_price, side)
             position_id = await self._fetch_position_id(okx, inst_id, position_side)
@@ -163,7 +211,7 @@ class Executor:
                 position_id=position_id,
             )
 
-            await self._attach_sl_tp(position_id or ord_id, avg_price, side)
+            await self._attach_sl_tp(inst_id, position_id, avg_price, side, close_qty=fill_qty)
 
             logger.info(
                 "[市价开仓成功] inst_id=%s ord_id=%s pos_id=%s price=%.6f sl=%.6f tp=%.6f",
@@ -369,9 +417,11 @@ class Executor:
 
     async def _attach_sl_tp(
         self,
+        inst_id: str,
         position_id: str,
         entry_price: float,
         side: str,
+        close_qty: float = 0,
     ) -> None:
         if not entry_price:
             return
@@ -382,22 +432,24 @@ class Executor:
         try:
             okx = await self._get_exchange()
             await okx.privatePostTradeOrderAlgo({
+                "instId": inst_id,
                 "ordType": "oco",
-                "instId": position_id,
                 "tdMode": "cross",
                 "side": close_side,
                 "posSide": position_side,
-                "sz": "0",
+                "sz": str(int(close_qty)) if close_qty else "",
                 "slTriggerPx": str(sl),
                 "slOrdPx": "-1",
                 "slTriggerPxType": "last",
                 "tpTriggerPx": str(tp),
                 "tpOrdPx": "-1",
                 "tpTriggerPxType": "last",
+                "linkedOrdId": position_id or "",
             })
-            logger.info("[附加SL/TP] pos_id=%s sl=%.6f tp=%.6f", position_id, sl, tp)
+            logger.info("[附加SL/TP] inst_id=%s pos_id=%s sz=%s sl=%.6f tp=%.6f",
+                        inst_id, position_id, close_qty, sl, tp)
         except Exception as exc:
-            logger.warning("[附加SL/TP失败] pos_id=%s error=%s", position_id, exc)
+            logger.warning("[附加SL/TP失败] inst_id=%s pos_id=%s error=%s", inst_id, position_id, exc)
 
     # ── DB helpers ─────────────────────────────────────────────────────────────
 
@@ -421,6 +473,22 @@ class Executor:
 
     async def _set_row_status(self, row_id: int, status: str) -> None:
         await self._set_row_fields(row_id, status=status)
+
+
+    async def _get_position_notional(self, inst_id: str, position_side: str) -> float:
+        """查询指定币种的持仓面值（名义价值），用于判断芝麻仓"""
+        try:
+            okx = await self._get_exchange()
+            positions = await okx.fetch_positions([inst_id])
+            for pos in positions:
+                ps = pos.get("side") or pos.get("info", {}).get("posSide", "")
+                if ps == position_side:
+                    notional = float(pos.get("notional") or pos.get("info", {}).get("notionalUsd", 0))
+                    logger.info("[持仓面值查询] inst_id=%s side=%s notional=%.2f", inst_id, position_side, notional)
+                    return notional
+        except Exception as exc:
+            logger.warning("[持仓面值查询失败] inst_id=%s error=%s", inst_id, exc)
+        return 0.0
 
     # ── Exchange helpers ───────────────────────────────────────────────────────
 
