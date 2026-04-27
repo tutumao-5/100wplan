@@ -99,13 +99,8 @@ class Executor:
         except Exception as exc:
             logger.warning("[设置杠杆失败] inst_id=%s error=%s", inst_id, exc)
 
-        if hsaka_score >= 6.5 and (hsaka_sfp == 1 or hsaka_liq == 1):
-            return await self.execute_market_order(inst_id, side, quantity, signal)
-        elif 5.5 <= hsaka_score < 6.5:
-            return await self.execute_limit_order(inst_id, side, entry_price, quantity, signal)
-        else:
-            logger.info("[信号拒绝] inst_id=%s score=%.2f", inst_id, hsaka_score)
-            return {"status": "rejected", "reason": "score_too_low"}
+        # Scanner 负责过滤，Executor 负责执行——DB 有信号就市价无条件执行
+        return await self.execute_market_order(inst_id, side, quantity, signal)
 
     async def execute_market_order(
         self,
@@ -118,13 +113,7 @@ class Executor:
         hsaka_sfp = int(signal_info.get("hsaka_sfp", 0))
         hsaka_liq = int(signal_info.get("hsaka_liq", 0))
 
-        if not (hsaka_score >= 6.5 and (hsaka_sfp == 1 or hsaka_liq == 1)):
-            logger.warning(
-                "[市价路由拒绝] inst_id=%s score=%.2f sfp=%d liq=%d",
-                inst_id, hsaka_score, hsaka_sfp, hsaka_liq,
-            )
-            return {"status": "rejected", "reason": "routing_condition_not_met"}
-
+        # 全量市价——Scanner 已过滤，Executor 不再设卡
         position_side = "long" if side == "buy" else "short"
 
         db_row_id = await self.db.create_order(
@@ -195,14 +184,7 @@ class Executor:
         quantity: float,
         signal_info: Dict[str, Any],
     ) -> Dict[str, Any]:
-        hsaka_score = float(signal_info.get("hsaka_score", 0))
-
-        if not (5.5 <= hsaka_score < 6.5):
-            logger.warning(
-                "[限价路由拒绝] inst_id=%s score=%.2f", inst_id, hsaka_score
-            )
-            return {"status": "rejected", "reason": "routing_condition_not_met"}
-
+        # 限价单路由（当前由 Scanner 全量市价替代，此方法保留备用）
         position_side = "long" if side == "buy" else "short"
         sl, tp = self._calc_sl_tp(price, side)
 
