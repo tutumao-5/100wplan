@@ -1,0 +1,19 @@
+# OKX 交易核心
+ccxt>=4.0.0
+python-dotenv>=1.0.0
+
+# 异步生态
+aiohttp>=3.9.0
+aiosqlite>=0.19.0
+asyncio-throttle>=1.0.2
+
+# DeepSeek / OpenAI 兼容接口
+openai>=1.12.0
+
+# 数据处理
+pandas>=2.0.0
+numpy>=1.24.0
+
+# 日志与配置
+pyyaml>=6.0.1
+aiohttp-socks>=0.8.0

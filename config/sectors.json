@@ -1,0 +1,24 @@
+{
+  "version": "1.0",
+  "description": "OKX永续合约币种板块映射",
+  "sectors": {
+    "Layer1": ["BTC", "ETH", "SOL", "ARB", "MATIC", "AVAX", "OP", "FTM"],
+    "Layer2": ["IMX", "MANTA", "ZKSYNC", "STARK", "LINEA", "BASE"],
+    "DeFi": ["INJ", "AAVE", "MKR", "UNI", "SNX", "COMP", "CRV"],
+    "GameFi": ["GALA", "MANA", "SAND", "AXS", "ENJ", "IMX"],
+    "AI": ["WLD", "AGIX", "FET", "OCEAN", "TAO", "RENDER"],
+    "Meme": ["DOGE", "SHIB", "PEPE", "FLOKI", "BONK", "WIF"],
+    "BSC": ["BNB", "CAKE", "BSW", "BAND"],
+    "Cosmos": ["ATOM", "TIA", "STRD", "DYM", "OSMO"],
+    "RealWorld": ["PROPC", "RWA"],
+    "Privacy": ["TRAC", "OCEAN"],
+    "PoW": ["BCH", "BSV", "DASH", "ZEC"],
+    "Meta": ["APT", "SUI", "SEI"],
+    "模组币": ["WLD"],
+    "RWA": ["PROPC"],
+    "DePIN": ["IO", "AR", "FIL", "LUNA"],
+    "Social": ["CHR", "HIGH"],
+    "Infra": ["TIA", "AR", "FIL"],
+    "Others": ["KAVA", "ALPHA", "XLM"]
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "version": "2.0",
+  "system": {
+    "project_name": "OKX Auto Trading Agent 2 (Hsaka + AI)",
+    "log_level": "INFO"
+  },
+  "proxy": {
+    "http": "http://127.0.0.1:7897",
+    "https": "http://127.0.0.1:7897"
+  },
+  "exchange": {
+    "exchange_id": "okx",
+    "default_type": "swap",
+    "testnet": false
+  },
+  "scanner": {
+    "symbols_count": 129,
+    "kline_limit": 100,
+    "kline_interval": "1h",
+    "scan_interval_seconds": 300,
+    "rsi_period": 14,
+    "rsi_oversold": 30,
+    "rsi_overbought": 65,
+    "vma_period": 20,
+    "vma_threshold": 1.8,
+    "atr_period": 14,
+    "signal_validity_hours": 2,
+    "cooldown_seconds": 3600,
+    "min_hsaka_score": 5.5
+  },
+  "hsaka": {
+    "sfp_threshold": 0.5,
+    "liquidity_volume_multiplier": 2.0,
+    "funding_pos_threshold": 0.0015,
+    "funding_neg_threshold": -0.0008,
+    "order_book_bid_ratio": 1.5,
+    "order_book_ask_ratio": 0.67,
+    "sessions": {
+      "london": {"start_utc": 7, "end_utc": 10},
+      "ny": {"start_utc": 12, "end_utc": 15}
+    }
+  },
+  "risk_control": {
+    "max_position_usdt": 100,
+    "max_position_pct": 0.1,
+    "max_total_positions": 5,
+    "max_sector_exposure": 0.3,
+    "stop_loss_pct": 0.02,
+    "take_profit_pct": 0.06,
+    "trailing_stop_pct": 0.01,
+    "meltdown_threshold_pct": 0.05,
+    "daily_loss_limit_pct": 0.1
+  },
+  "order": {
+    "default_order_type": "limit",
+    "market_order_enabled": false,
+    "maker_fee_discount": 0.18,
+    "slippage_budget_pct": 0.005
+  },
+  "pattern_learner": {
+    "batch_size": 30,
+    "冷启动_threshold": 30,
+    "model": "deepseek-v4",
+    "enabled": true
+  }
+}
