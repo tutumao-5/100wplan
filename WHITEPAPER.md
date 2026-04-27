@@ -137,7 +137,7 @@ OKX 永续合约自动交易 2号是由金大帅（一人公司 CEO）主导的�
 ### 2.2 目录结构
 
 ```
-okx-trading-agent-2/
+okx100w计划/
 ├── config/
 │   ├── settings_v2.json      ✅ 已存在（全局常量）
 │   └── sectors.json           ✅ 已存在（18板块映射）
@@ -512,7 +512,7 @@ Executor 是 2号系统的订单执行中枢，负责：
 ## 九、关键文件清单
 
 ```
-/home/jwx/okx-trading-agent-2/
+/home/jwx/okx100w计划/
 ├── config/
 │   ├── settings_v2.json      ✅ 已存在
 │   └── sectors.json          ✅ 已存在

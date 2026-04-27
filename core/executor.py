@@ -11,7 +11,7 @@ from core.trade_db import TradeDB
 
 logger = logging.getLogger(__name__)
 
-BASE_DIR = Path("/home/jwx/okx-trading-agent-2")
+BASE_DIR = Path(__file__).resolve().parent.parent
 SETTINGS_PATH = BASE_DIR / "config" / "settings_v2.json"
 PROXY_URL = "http://127.0.0.1:7897"
 

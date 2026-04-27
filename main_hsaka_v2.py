@@ -17,9 +17,11 @@ from core.pattern_learner import PatternLearner
 from core.trade_db import TradeDB, get_db
 from core.tg_bot import TgBot
 
-# ---------------------------------------------------------------------------
+_ROOT = Path(__file__).resolve().parent
+
+# -------------------------------------------------------------------------
 # 日志配置
-# ---------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] [%(name)s] %(message)s",
@@ -27,14 +29,14 @@ logging.basicConfig(
     handlers=[
         logging.StreamHandler(sys.stdout),
         logging.FileHandler(
-            Path("logs") / f"main_{datetime.now():%Y%m%d}.log",
+            _ROOT / "logs" / f"main_{datetime.now():%Y%m%d}.log",
             encoding="utf-8",
         ),
     ],
 )
 logger = logging.getLogger("main")
 
-CONFIG_PATH = Path("config/settings_v2.json")
+CONFIG_PATH = _ROOT / "config" / "settings_v2.json"
 
 
 def load_config() -> dict:
@@ -95,6 +97,12 @@ class TradingBot:
     async def _run_once(self) -> None:
         logger.info("[周期 %d] 开始扫描所有标的…", self._cycle)
         report = await scan_all()
+
+        # 更新 tg_bot 拉取统计，供 /status 使用
+        self.tg_bot.update_fetch_stats(
+            report.get("fetch_success", 0),
+            report.get("fetch_total", 0)
+        )
 
         total = report.get("total_coins", 0)
         written = report.get("signals_written", 0)
@@ -178,7 +186,10 @@ async def main() -> None:
     # 5. 实例化 TradingBot
     bot = TradingBot(tg_bot=tg_bot, executor=executor, db=db, config=config)
 
-    # 6. asyncio.create_task 启动双核（非阻塞）
+    # 6. 点火仪式
+    await tg_bot.send_message("🚀 金大帅，okx100w计划已点火成功！当前扫描频率：180s/次。监控中...")
+
+    # 7. asyncio.create_task 启动双核（非阻塞）
     logger.info("=== 系统就绪，启动双核异步任务 ===")
     await asyncio.sleep(0)  # 让事件循环开始
     asyncio.create_task(tg_bot.start())
@@ -197,5 +208,5 @@ async def main() -> None:
 
 if __name__ == "__main__":
     # 确保 logs/ 目录存在
-    Path("logs").mkdir(exist_ok=True)
+    (_ROOT / "logs").mkdir(exist_ok=True)
     asyncio.run(main())

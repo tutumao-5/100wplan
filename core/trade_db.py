@@ -1,5 +1,6 @@
 import logging
 import os
+from pathlib import Path
 from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import Any, Optional
@@ -8,7 +9,7 @@ import aiosqlite
 
 logger = logging.getLogger(__name__)
 
-DB_PATH = "/home/jwx/okx-trading-agent-2/data/trading_2.db"
+DB_PATH = str(Path(__file__).resolve().parent.parent / "data" / "trading_2.db")
 
 _db_instance: Optional["TradeDB"] = None
 

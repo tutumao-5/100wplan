@@ -20,7 +20,7 @@ from core.pattern_learner import get_learner, EVOLUTION_THRESHOLD
 logger = logging.getLogger(__name__)
 
 # ── 路径配置 ─────────────────────────────────────────────────────────────────
-BASE_DIR = Path("/home/jwx/okx-trading-agent-2")
+BASE_DIR = Path(__file__).resolve().parent.parent
 SECTORS_PATH = BASE_DIR / "config" / "sectors.json"
 OKX_BASE = "https://www.okx.com"
 PROXY = "http://127.0.0.1:7897"
@@ -125,7 +125,7 @@ async def _fetch_single(
             async with session.get(
                 url, params=params,
                 proxy=PROXY,
-                timeout=aiohttp.ClientTimeout(total=10),
+                timeout=aiohttp.ClientTimeout(total=15),
             ) as resp:
                 body = await resp.json()
                 raw = body.get("data", [])
@@ -137,18 +137,24 @@ async def _fetch_single(
 
 
 async def _fetch_klines_batch(coins: List[str]) -> Dict[str, List]:
-    """asyncio.gather并发拉取所有币种K线"""
+    """asyncio.gather并发拉取所有币种K线（信号量限制20并发）"""
+    semaphore = asyncio.Semaphore(20)
+    async def _fetch_with_sem(session: aiohttp.ClientSession, c: str):
+        async with semaphore:
+            return await _fetch_single(session, c)
     async with aiohttp.ClientSession() as session:
-        tasks = [_fetch_single(session, c) for c in coins]
+        tasks = [_fetch_with_sem(session, c) for c in coins]
         results = await asyncio.gather(*tasks, return_exceptions=True)
     candles: Dict[str, List] = {}
+    success = 0
     for r in results:
         if isinstance(r, Exception):
             continue
         inst_id, raw = r
         if raw:
             candles[inst_id] = raw
-    return candles
+            success += 1
+    return candles, success, len(coins)
 
 
 # ── 技术指标 ──────────────────────────────────────────────────────────────────
@@ -448,8 +454,10 @@ async def scan_all() -> Dict[str, Any]:
         report["total_coins"] = len(all_coins)
         logger.info("[Scanner] 开始扫描 %d 个币种", len(all_coins))
 
-        candles_dict = await _fetch_klines_batch(all_coins)
-        logger.info("[Scanner] 成功拉取 %d 个币种K线", len(candles_dict))
+        candles_dict, fetch_success, fetch_total = await _fetch_klines_batch(all_coins)
+        logger.info("[Scanner] 成功拉取 %d/%d 个币种K线", fetch_success, fetch_total)
+        report["fetch_success"] = fetch_success
+        report["fetch_total"] = fetch_total
 
         # ── 步骤c：漏斗1 - RSI极值初筛（RSI<30 OR RSI>65）───────────────────
         rsi_raw = _filter_rsi(candles_dict)
