@@ -31,7 +31,7 @@ RSI_OVERSOLD = 30
 RSI_OVERBOUGHT = 65
 VMA_PERIOD = 20
 VMA_RATIO_THRESHOLD = 1.8
-SCORE_THRESHOLD = 2.5
+SCORE_THRESHOLD = 2.0
 KLINE_LIMIT = 100
 
 HSAKA_KEYS = [
@@ -440,7 +440,7 @@ async def _score_and_rank(
 
 
 async def _persist_signals(signals: List[Dict[str, Any]], db: TradeDB) -> int:
-    """调用trade_db.insert_signal()原子写入，仅写入综合评分≥2.5的信号"""
+    """调用trade_db.insert_signal()原子写入，仅写入综合评分≥2.0的信号"""
     written = 0
     now = datetime.utcnow().isoformat()
     expired_at = (datetime.utcnow() + timedelta(hours=4)).isoformat()
@@ -452,7 +452,7 @@ async def _persist_signals(signals: List[Dict[str, Any]], db: TradeDB) -> int:
 
         if composite_score < SCORE_THRESHOLD:
             # [Intercept] Hsaka通过但综合评分不足：透视信号拦截原因
-            logger.info("[Intercept] %s Hsaka_score=%.4f | 综合评分=%.4f < 2.5 | 未写入原因: 分值过低（冷启动阈值）",
+            logger.info("[Intercept] %s Hsaka_score=%.4f | 综合评分=%.4f < 2.0 | 未写入原因: 分值过低（冷启动阈值）",
                          inst_id, hsaka_score, composite_score)
             continue
         try:
@@ -537,7 +537,7 @@ async def scan_all() -> Dict[str, Any]:
     执行完整漏斗扫描，返回扫描报告。
 
     流程：blocking_lessons → 并发拉K线 → RSI初筛 → VMA次筛
-          → Hsaka七层 → AI打分 → 综合评分≥2.5写入DB
+          → Hsaka七层 → AI打分 → 综合评分≥2.0写入DB
     """
     report: Dict[str, Any] = {
         "total_coins": 0,
@@ -597,7 +597,7 @@ async def scan_all() -> Dict[str, Any]:
             return report
 
         # ── 步骤f：AI动态打分（进化态≥30笔后启用）───────────────────────────
-        # ── 步骤g：综合评分≥2.5写入DB ─────────────────────────────────────────
+        # ── 步骤g：综合评分≥2.0写入DB ─────────────────────────────────────────
         signals = await _score_and_rank(hsaka_passed, db)
         written = await _persist_signals(signals, db)
 
