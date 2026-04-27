@@ -52,7 +52,7 @@ def _read_api_credentials(config: dict) -> tuple[str, str, str]:
     """优先读 settings_v2.json，回退环境变量。"""
     exchange_cfg = config.get("exchange", {})
     api_key = exchange_cfg.get("okx_api_key") or os.environ.get("OKX_API_KEY", "")
-    secret = exchange_cfg.get("okx_secret") or os.environ.get("OKX_SECRET", "")
+    secret = exchange_cfg.get("okx_secret") or os.environ.get("OKX_API_SECRET", "")
     passphrase = exchange_cfg.get("okx_passphrase") or os.environ.get("OKX_PASSPHRASE", "")
     return api_key, secret, passphrase
 
